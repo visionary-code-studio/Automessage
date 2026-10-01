@@ -1,0 +1,54 @@
+# Node & JavaScript dependencies
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# Build outputs
+dist/
+build/
+.vite/
+
+# Python & Environment
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.venv/
+ENV/
+
+# Databases & local state
+*.db
+*.db-wal
+*.db-shm
+*.sqlite3
+backend/automessage.db
+backend/automessage.db-wal
+backend/automessage.db-shm
+
+# WhatsApp Bridge Session Credentials (CRITICAL - DO NOT COMMIT TO GIT)
+auth_info_baileys/
+whatsapp_bridge/auth_info_baileys/
+
+# Environment Variables & Secrets
+.env
+.env.local
+.env.*.local
+*.pem
+credentials.json
+token.json
+
+# IDE & OS files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Antigravity artifacts
+.system_generated/

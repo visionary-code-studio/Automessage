@@ -1,0 +1,11 @@
+Full Name,Email Address,Phone Number,Company,Event Name,Event Date,Venue,Ticket ID,Invoice Num,Amount,Due Date
+Aarav Sharma,aarav.sharma@example.com,+14155552671,Apex Labs,AI Builders Summit 2026,Oct 15 2026,Convention Hall A,TCK-1091,INV-2041,450.00,Oct 30 2026
+Riya Patel,riya.patel@techcorp.io,+447911123456,TechCorp Global,AI Builders Summit 2026,Oct 15 2026,Convention Hall A,TCK-1092,INV-2042,1200.00,Nov 05 2026
+Marcus Vance,marcus.vance@innovate.co,+12125550198,Innovate AI,AI Builders Summit 2026,Oct 15 2026,Convention Hall A,TCK-1093,INV-2043,890.00,Oct 28 2026
+Elena Rostova,elena.rostova@cloudscale.net,+4915123456789,CloudScale Systems,AI Builders Summit 2026,Oct 15 2026,Convention Hall A,TCK-1094,INV-2044,650.00,Nov 01 2026
+Devon Miller,devon.miller@hypergrowth.org,+13125550143,HyperGrowth Inc,AI Builders Summit 2026,Oct 15 2026,Convention Hall A,TCK-1095,INV-2045,350.00,Oct 25 2026
+Sophia Chen,sophia.chen@quantumsoft.com,+6591234567,QuantumSoft,AI Builders Summit 2026,Oct 15 2026,Convention Hall A,TCK-1096,INV-2046,1500.00,Nov 10 2026
+Zayn Malik,zayn.consulting@nexus.com,+971501234567,Nexus Advisory,AI Builders Summit 2026,Oct 15 2026,Convention Hall A,TCK-1097,INV-2047,990.00,Nov 02 2026
+Aarav Sharma,aarav.sharma@example.com,+14155552671,Apex Labs,AI Builders Summit 2026,Oct 15 2026,Convention Hall A,TCK-1098,INV-2048,450.00,Oct 30 2026
+Invalid User,bad-email-format-without-at,00000000,Corrupt Inc,AI Builders Summit 2026,Oct 15 2026,Convention Hall A,TCK-1099,INV-2049,100.00,Oct 20 2026
+Missing Var User,missing.var@domain.com,+15559876543,Test Co,,Oct 15 2026,Convention Hall A,TCK-1100,INV-2050,200.00,Oct 22 2026
