@@ -1,7 +1,11 @@
 {
   "rewrites": [
     {
-      "source": "/(.*)",
+      "source": "/api/:match*",
+      "destination": "https://automessage-backend.onrender.com//api/:match*"
+    },
+    {
+      "source": "/((?!assets/|favicon\\.svg|icons\\.svg).*)$",
       "destination": "/index.html"
     }
   ]
