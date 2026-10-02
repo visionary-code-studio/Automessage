@@ -2,6 +2,7 @@ import re
 import asyncio
 import uuid
 import httpx
+import os
 from typing import Optional, Tuple
 from .base import MessagingProvider, OutboundMessage, ProviderSendResult, ProviderCapabilities
 
@@ -11,12 +12,12 @@ class WhatsAppAdapter(MessagingProvider):
         is_simulated: bool = True,
         phone_number_id: Optional[str] = None,
         access_token: Optional[str] = None,
-        bridge_url: Optional[str] = "http://127.0.0.1:3001"
+        bridge_url: Optional[str] = None
     ):
         self.is_simulated = is_simulated
         self.phone_number_id = phone_number_id
         self.access_token = access_token
-        self.bridge_url = bridge_url
+        self.bridge_url = bridge_url or os.getenv("WHATSAPP_BRIDGE_URL", "http://127.0.0.1:3001")
 
     async def validate_recipient(self, identifier: str) -> Tuple[bool, Optional[str]]:
         if not identifier:

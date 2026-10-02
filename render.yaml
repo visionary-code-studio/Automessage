@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: automessage-backend
+    runtime: docker
+    dockerfilePath: Dockerfile
+    plan: free
+    region: oregon
+    healthCheckPath: /api/stats
+    envVars:
+      - key: PORT
+        value: 10000
+      - key: WHATSAPP_BRIDGE_URL
+        value: http://127.0.0.1:3001

@@ -508,12 +508,13 @@ async def receive_whatsapp_webhook(event: WebhookWhatsAppEvent):
 
 # ----------------- WHATSAPP QR CODE BRIDGE PROXY -----------------
 import httpx
+WHATSAPP_BRIDGE_URL = os.getenv("WHATSAPP_BRIDGE_URL", "http://127.0.0.1:3001").rstrip('/')
 
 @app.get("/api/whatsapp-bridge/status")
 async def get_whatsapp_bridge_status():
     try:
         async with httpx.AsyncClient() as client:
-            resp = await client.get("http://127.0.0.1:3001/status", timeout=5.0)
+            resp = await client.get(f"{WHATSAPP_BRIDGE_URL}/status", timeout=5.0)
             data = resp.json()
             if data.get("status") == "CONNECTED" and data.get("user"):
                 conn = get_db_connection()
@@ -535,7 +536,7 @@ async def get_whatsapp_bridge_status():
 async def refresh_whatsapp_bridge_qr():
     try:
         async with httpx.AsyncClient() as client:
-            resp = await client.post("http://127.0.0.1:3001/refresh-qr", timeout=10.0)
+            resp = await client.post(f"{WHATSAPP_BRIDGE_URL}/refresh-qr", timeout=10.0)
             data = resp.json()
             conn = get_db_connection()
             try:
@@ -555,7 +556,7 @@ async def refresh_whatsapp_bridge_qr():
 async def logout_whatsapp_bridge():
     try:
         async with httpx.AsyncClient() as client:
-            resp = await client.post("http://127.0.0.1:3001/logout", timeout=8.0)
+            resp = await client.post(f"{WHATSAPP_BRIDGE_URL}/logout", timeout=8.0)
             conn = get_db_connection()
             try:
                 conn.execute("""
