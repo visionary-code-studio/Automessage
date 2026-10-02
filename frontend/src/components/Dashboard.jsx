@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { apiUrl } from '../api';
 import { Icon } from './Icons';
 
 export const Dashboard = ({ setView, openCampaignMonitor }) => {
@@ -7,7 +8,7 @@ export const Dashboard = ({ setView, openCampaignMonitor }) => {
 
   const fetchStats = async () => {
     try {
-      const res = await fetch('/api/stats');
+      const res = await fetch(apiUrl('/api/stats'));
       if (res.ok) {
         const data = await res.json();
         setStats(data);

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { apiUrl } from '../api';
 import { Icon } from './Icons';
 
 export const CampaignWizard = ({ setView, openCampaignMonitor }) => {
@@ -44,12 +45,12 @@ export const CampaignWizard = ({ setView, openCampaignMonitor }) => {
   const [savedTemplates, setSavedTemplates] = useState([]);
 
   useEffect(() => {
-    fetch('/api/templates')
+    fetch(apiUrl('/api/templates'))
       .then(res => res.json())
       .then(data => setSavedTemplates(data))
       .catch(console.error);
 
-    fetch('/api/whatsapp-bridge/status')
+    fetch(apiUrl('/api/whatsapp-bridge/status'))
       .then(res => res.json())
       .then(data => {
         if (data.status === 'CONNECTED' && data.user) {
@@ -140,7 +141,7 @@ export const CampaignWizard = ({ setView, openCampaignMonitor }) => {
     formData.append('file', file);
 
     try {
-      const res = await fetch('/api/campaigns/parse-file', {
+      const res = await fetch(apiUrl('/api/campaigns/parse-file'), {
         method: 'POST',
         body: formData
       });
@@ -171,7 +172,7 @@ export const CampaignWizard = ({ setView, openCampaignMonitor }) => {
         template_body: templateBody,
         template_subject: subject
       };
-      const res = await fetch('/api/campaigns/validate', {
+      const res = await fetch(apiUrl('/api/campaigns/validate'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
@@ -192,7 +193,7 @@ export const CampaignWizard = ({ setView, openCampaignMonitor }) => {
   const handleGenerateAi = async () => {
     setAiLoading(true);
     try {
-      const res = await fetch('/api/ai/draft', {
+      const res = await fetch(apiUrl('/api/ai/draft'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -236,7 +237,7 @@ export const CampaignWizard = ({ setView, openCampaignMonitor }) => {
         throttle_delay_sec: 0.7
       };
 
-      const res = await fetch('/api/campaigns', {
+      const res = await fetch(apiUrl('/api/campaigns'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)

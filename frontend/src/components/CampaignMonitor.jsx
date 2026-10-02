@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { apiUrl } from '../api';
 import { Icon } from './Icons';
 
 export const CampaignMonitor = ({ campaignId, setView }) => {
@@ -16,7 +17,7 @@ export const CampaignMonitor = ({ campaignId, setView }) => {
   const fetchCampaignData = async () => {
     if (!campaignId) return;
     try {
-      const cRes = await fetch(`/api/campaigns/${campaignId}`);
+      const cRes = await fetch(apiUrl(`/api/campaigns/${campaignId}`));
       if (cRes.ok) {
         const cData = await cRes.json();
         setCampaign(cData);
@@ -30,7 +31,7 @@ export const CampaignMonitor = ({ campaignId, setView }) => {
   const fetchMessages = async () => {
     if (!campaignId) return;
     try {
-      const url = `/api/campaigns/${campaignId}/messages?status=${filterStatus}&search=${encodeURIComponent(searchQuery)}`;
+      const url = apiUrl(`/api/campaigns/${campaignId}/messages?status=${filterStatus}&search=${encodeURIComponent(searchQuery)}`);
       const mRes = await fetch(url);
       if (mRes.ok) {
         const mData = await mRes.json();
@@ -47,7 +48,7 @@ export const CampaignMonitor = ({ campaignId, setView }) => {
     fetchCampaignData();
 
     // Connect to Server-Sent Events stream
-    const sse = new EventSource(`/api/campaigns/${campaignId}/stream`);
+    const sse = new EventSource(apiUrl(`/api/campaigns/${campaignId}/stream`));
     eventSourceRef.current = sse;
 
     sse.onmessage = (e) => {
@@ -113,14 +114,14 @@ export const CampaignMonitor = ({ campaignId, setView }) => {
   // Campaign controls
   const handlePause = async () => {
     setActionLoading(true);
-    await fetch(`/api/campaigns/${campaignId}/pause`, { method: 'POST' });
+    await fetch(apiUrl(`/api/campaigns/${campaignId}/pause`), { method: 'POST' });
     fetchCampaignData();
     setActionLoading(false);
   };
 
   const handleResume = async () => {
     setActionLoading(true);
-    await fetch(`/api/campaigns/${campaignId}/resume`, { method: 'POST' });
+    await fetch(apiUrl(`/api/campaigns/${campaignId}/resume`), { method: 'POST' });
     fetchCampaignData();
     setActionLoading(false);
   };
@@ -128,20 +129,20 @@ export const CampaignMonitor = ({ campaignId, setView }) => {
   const handleCancel = async () => {
     if (!confirm('Are you sure you want to cancel the remaining queued messages?')) return;
     setActionLoading(true);
-    await fetch(`/api/campaigns/${campaignId}/cancel`, { method: 'POST' });
+    await fetch(apiUrl(`/api/campaigns/${campaignId}/cancel`), { method: 'POST' });
     fetchCampaignData();
     setActionLoading(false);
   };
 
   const handleRetryFailed = async () => {
     setActionLoading(true);
-    await fetch(`/api/campaigns/${campaignId}/retry-failed`, { method: 'POST' });
+    await fetch(apiUrl(`/api/campaigns/${campaignId}/retry-failed`), { method: 'POST' });
     fetchCampaignData();
     setActionLoading(false);
   };
 
   const handleExport = () => {
-    window.location.href = `/api/campaigns/${campaignId}/export`;
+    window.location.href = apiUrl(`/api/campaigns/${campaignId}/export`);
   };
 
   if (!campaign) {

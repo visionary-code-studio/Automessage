@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { apiUrl } from '../api';
 import { Icon } from './Icons';
 
 export const IntegrationsHub = () => {
@@ -23,7 +24,7 @@ export const IntegrationsHub = () => {
 
   const fetchIntegrations = async () => {
     try {
-      const res = await fetch('/api/integrations');
+      const res = await fetch(apiUrl('/api/integrations'));
       if (res.ok) {
         const data = await res.json();
         setIntegrations(data);
@@ -35,7 +36,7 @@ export const IntegrationsHub = () => {
 
   const fetchBridgeStatus = async () => {
     try {
-      const res = await fetch('/api/whatsapp-bridge/status');
+      const res = await fetch(apiUrl('/api/whatsapp-bridge/status'));
       if (res.ok) {
         const data = await res.json();
         setBridgeStatus(data);
@@ -50,7 +51,7 @@ export const IntegrationsHub = () => {
   const handleRefreshQr = async () => {
     setRefreshingQr(true);
     try {
-      const res = await fetch('/api/whatsapp-bridge/refresh-qr', { method: 'POST' });
+      const res = await fetch(apiUrl('/api/whatsapp-bridge/refresh-qr'), { method: 'POST' });
       if (res.ok) {
         const data = await res.json();
         setBridgeStatus(data);
@@ -81,7 +82,7 @@ export const IntegrationsHub = () => {
 
   const toggleSimulation = async (id, currentVal) => {
     try {
-      const res = await fetch(`/api/integrations/${id}`, {
+      const res = await fetch(apiUrl(`/api/integrations/${id}`), {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ is_simulated: currentVal ? 0 : 1 })
@@ -99,7 +100,7 @@ export const IntegrationsHub = () => {
     const wa = integrations.find(i => i.provider === 'whatsapp');
     if (!wa) return;
     try {
-      const res = await fetch(`/api/integrations/${wa.id}`, {
+      const res = await fetch(apiUrl(`/api/integrations/${wa.id}`), {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -121,13 +122,13 @@ export const IntegrationsHub = () => {
     if (!confirm('Unlink this WhatsApp session and generate a new QR code?')) return;
     setRefreshingQr(true);
     try {
-      const res = await fetch('/api/whatsapp-bridge/reset', { method: 'POST' });
+      const res = await fetch(apiUrl('/api/whatsapp-bridge/reset'), { method: 'POST' });
       if (res.ok) {
         const data = await res.json();
         setBridgeStatus(data);
         fetchIntegrations();
       } else {
-        await fetch('/api/whatsapp-bridge/logout', { method: 'POST' });
+        await fetch(apiUrl('/api/whatsapp-bridge/logout'), { method: 'POST' });
         setTimeout(fetchBridgeStatus, 1500);
       }
     } catch (err) {
@@ -156,7 +157,7 @@ export const IntegrationsHub = () => {
     if (!item) return;
     setSaveLoading(true);
     try {
-      const res = await fetch(`/api/integrations/${item.id}`, {
+      const res = await fetch(apiUrl(`/api/integrations/${item.id}`), {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

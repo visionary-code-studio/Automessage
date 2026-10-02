@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { apiUrl } from '../api';
 import { Icon } from './Icons';
 
 export const TemplatesView = ({ setView }) => {
@@ -6,7 +7,7 @@ export const TemplatesView = ({ setView }) => {
   const [activeTab, setActiveTab] = useState('all');
 
   useEffect(() => {
-    fetch('/api/templates')
+    fetch(apiUrl('/api/templates'))
       .then(res => res.json())
       .then(data => setTemplates(data))
       .catch(console.error);
