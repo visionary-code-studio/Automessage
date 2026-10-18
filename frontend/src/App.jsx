@@ -80,7 +80,7 @@ export function App() {
         )}
 
         {currentView === 'integrations' && (
-          <IntegrationsHub />
+          <IntegrationsHub setView={setView} />
         )}
 
         {currentView === 'templates' && (

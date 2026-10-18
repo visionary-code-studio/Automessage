@@ -152,6 +152,27 @@ export const CampaignWizard = ({ setView, openCampaignMonitor, preloadedTemplate
     setStep(4);
   };
 
+  // Instant 1-click demo audience for effortless bulk testing
+  const handleLoadDemoContacts = () => {
+    const rows = [
+      { 'Name': 'Alex Rivera', 'Phone': '+14155552671', 'Email': 'alex.rivera@example.com', 'Event Name': 'Global Tech Summit', 'Event Date': 'Oct 24, 2026', 'Venue': 'Hall A, SF', 'Ticket ID': 'TK-8821' },
+      { 'Name': 'Sophia Chen', 'Phone': '+919876543210', 'Email': 'sophia.chen@example.com', 'Event Name': 'Global Tech Summit', 'Event Date': 'Oct 24, 2026', 'Venue': 'Hall A, SF', 'Ticket ID': 'TK-8822' },
+      { 'Name': 'Marcus Vance', 'Phone': '+447700900077', 'Email': 'marcus.vance@example.com', 'Event Name': 'Global Tech Summit', 'Event Date': 'Oct 24, 2026', 'Venue': 'Hall A, SF', 'Ticket ID': 'TK-8823' },
+      { 'Name': 'Priya Patel', 'Phone': '+919820098200', 'Email': 'priya.patel@example.com', 'Event Name': 'Global Tech Summit', 'Event Date': 'Oct 24, 2026', 'Venue': 'Hall A, SF', 'Ticket ID': 'TK-8824' }
+    ];
+    const headers = ['Name', 'Phone', 'Email', 'Event Name', 'Event Date', 'Venue', 'Ticket ID'];
+    setSpreadsheetData({
+      filename: 'demo_audience.csv',
+      row_count: rows.length,
+      headers,
+      sample_rows: rows,
+      all_rows: rows,
+      inferred_mapping: { name: 'Name', phone: 'Phone', email: 'Email', name_column: 'Name', phone_column: 'Phone', email_column: 'Email' }
+    });
+    setColumnMapping({ name: 'Name', phone: 'Phone', email: 'Email', name_column: 'Name', phone_column: 'Phone', email_column: 'Email' });
+    setUploadedFile({ name: 'Instant Demo Audience (4 Contacts)' });
+    setStep(4);
+  };
 
   // Upload file handler
   const handleFileUpload = async (e) => {
@@ -832,7 +853,7 @@ export const CampaignWizard = ({ setView, openCampaignMonitor, preloadedTemplate
             </label>
           </div>
 
-          <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', marginBottom: '24px' }}>
+          <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', marginBottom: '24px', flexWrap: 'wrap' }}>
             <button 
               className={`btn ${inputMode === 'upload' ? 'btn-primary' : 'btn-secondary'} btn-sm`}
               onClick={() => setInputMode('upload')}
@@ -844,6 +865,13 @@ export const CampaignWizard = ({ setView, openCampaignMonitor, preloadedTemplate
               onClick={() => setInputMode('paste')}
             >
               <Icon name="edit" size={14} /> Paste Phone Numbers Directly
+            </button>
+            <button 
+              className="btn btn-whatsapp-solid btn-sm"
+              onClick={handleLoadDemoContacts}
+              style={{ fontWeight: 700 }}
+            >
+              <Icon name="zap" size={14} /> ⚡ 1-Click Load Demo Audience
             </button>
             <button 
               className="btn btn-secondary btn-sm"

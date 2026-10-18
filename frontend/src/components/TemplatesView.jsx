@@ -273,11 +273,7 @@ export const TemplatesView = ({ setView, onUseTemplate }) => {
       </div>
 
       {/* 4 TEMPLATE CARDS GRID MATCHING IMAGE 3 */}
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-        gap: '24px'
-      }}>
+      <div className="templates-grid">
         {filtered.map((tmpl) => {
           const isWhatsApp = tmpl.channel.toLowerCase() === 'whatsapp';
           const lines = tmpl.body.split('\n');

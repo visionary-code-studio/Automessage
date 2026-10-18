@@ -453,3 +453,44 @@ h1, h2, h3, h4, .brand-font {
   background: rgba(11, 15, 26, 0.98);
   border-bottom: 1px solid var(--border-subtle);
 }
+
+/* Templates Grid Matching Image 3 */
+.templates-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+}
+
+@media (max-width: 1200px) {
+  .templates-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 680px) {
+  .templates-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Modal Animations */
+@keyframes modal-scale-in {
+  0% { transform: scale(0.92); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes ripple-ring {
+  0% { transform: scale(0.85); opacity: 0.9; }
+  50% { transform: scale(1.35); opacity: 0.2; }
+  100% { transform: scale(1.6); opacity: 0; }
+}
+
+.animate-modal-in {
+  animation: modal-scale-in 0.22s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.ripple-pulse {
+  position: absolute;
+  border-radius: 50%;
+  animation: ripple-ring 2.2s cubic-bezier(0, 0.2, 0.8, 1) infinite;
+}
