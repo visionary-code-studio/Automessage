@@ -92,9 +92,11 @@ class GmailAdapter(MessagingProvider):
         if self.smtp_email and self.smtp_password:
             try:
                 def send_smtp_sync():
+                    clean_pw = (self.smtp_password or "").replace(" ", "").strip()
+                    clean_email = (self.smtp_email or "").strip()
                     with smtplib.SMTP("smtp.gmail.com", 587, timeout=15) as server:
                         server.starttls()
-                        server.login(self.smtp_email, self.smtp_password)
+                        server.login(clean_email, clean_pw)
                         server.send_message(mime_obj)
                 
                 await asyncio.to_thread(send_smtp_sync)

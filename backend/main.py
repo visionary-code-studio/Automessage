@@ -89,17 +89,43 @@ def update_integration(id: str, payload: Dict[str, Any]):
     now = datetime.utcnow().isoformat()
     fields = []
     values = []
+    allowed = [
+        "is_connected", "is_simulated", "account_identifier", 
+        "phone_number_id", "waba_id", "access_token_encrypted", 
+        "refresh_token_encrypted"
+    ]
     for k, v in payload.items():
-        if k in ["is_connected", "is_simulated", "account_identifier", "phone_number_id", "waba_id"]:
+        if k in allowed:
             fields.append(f"{k} = ?")
             values.append(v)
     if fields:
         fields.append("updated_at = ?")
         values.append(now)
-        values.append(id)
-        conn.execute(f"UPDATE integrations SET {', '.join(fields)} WHERE id = ?", values)
+        conn.execute(f"UPDATE integrations SET {', '.join(fields)} WHERE id = ? OR provider = ?", values + [id, id])
         conn.commit()
-    res = conn.execute("SELECT * FROM integrations WHERE id = ?", (id,)).fetchone()
+
+    res = conn.execute("SELECT * FROM integrations WHERE id = ? OR provider = ?", (id, id)).fetchone()
+    if not res:
+        # Upsert if not found
+        provider = "gmail" if ("gmail" in id.lower()) else "whatsapp"
+        new_id = id if id.startswith("int_") else f"int_{provider}_default"
+        conn.execute("""
+        INSERT INTO integrations (id, provider, account_identifier, is_connected, is_simulated, phone_number_id, waba_id, access_token_encrypted, refresh_token_encrypted, created_at, updated_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """, (
+            new_id, provider,
+            payload.get("account_identifier", ""),
+            payload.get("is_connected", 1),
+            payload.get("is_simulated", 0),
+            payload.get("phone_number_id"),
+            payload.get("waba_id"),
+            payload.get("access_token_encrypted"),
+            payload.get("refresh_token_encrypted"),
+            now, now
+        ))
+        conn.commit()
+        res = conn.execute("SELECT * FROM integrations WHERE id = ?", (new_id,)).fetchone()
+
     conn.close()
     if not res:
         raise HTTPException(status_code=404, detail="Integration not found")

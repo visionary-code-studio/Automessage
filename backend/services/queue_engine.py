@@ -119,11 +119,15 @@ class CampaignQueueEngine:
         is_sim = bool(integ["is_simulated"]) if (integ and integ["is_simulated"] is not None) else True
 
         if channel == "gmail":
+            app_pw = None
+            if integ:
+                app_pw = integ["refresh_token_encrypted"] or integ["access_token_encrypted"]
+            from_email = (sender_identity or (integ["account_identifier"] if integ else None) or "").strip()
             adapter = GmailAdapter(
                 is_simulated=is_sim,
                 access_token=integ["access_token_encrypted"] if integ else None,
-                smtp_email=integ["account_identifier"] if integ else None,
-                smtp_password=integ["refresh_token_encrypted"] if integ else None
+                smtp_email=from_email,
+                smtp_password=app_pw
             )
         else:
             adapter = WhatsAppAdapter(

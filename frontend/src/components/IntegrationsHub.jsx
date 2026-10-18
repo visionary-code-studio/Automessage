@@ -88,15 +88,15 @@ export const IntegrationsHub = () => {
     setEditingProvider(provider);
     if (item) {
       setFormFields({
-        account_identifier: item.account_identifier || '',
+        account_identifier: item.account_identifier && item.account_identifier !== 'Not configured' ? item.account_identifier : '',
         phone_number_id: item.phone_number_id || '',
         waba_id: item.waba_id || '',
-        access_token_encrypted: item.access_token_encrypted || '',
-        refresh_token_encrypted: item.refresh_token_encrypted || ''
+        access_token_encrypted: item.access_token_encrypted || item.refresh_token_encrypted || '',
+        refresh_token_encrypted: item.refresh_token_encrypted || item.access_token_encrypted || ''
       });
     } else {
       setFormFields({
-        account_identifier: provider === 'whatsapp' ? 'AutoMessage' : 'yourname@gmail.com',
+        account_identifier: provider === 'whatsapp' ? 'AutoMessage' : '',
         phone_number_id: '123456789012345',
         waba_id: '',
         access_token_encrypted: '',
@@ -109,20 +109,39 @@ export const IntegrationsHub = () => {
     e.preventDefault();
     setSaveLoading(true);
     const item = integrations.find(i => i.provider === editingProvider);
-    if (item) {
-      try {
-        await fetch(apiUrl(`/api/integrations/${item.id}`), {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(formFields)
-        });
-      } catch (err) {
-        console.error(err);
+    const targetId = item ? item.id : (editingProvider === 'gmail' ? 'int_gmail_default' : 'int_wa_default');
+    
+    const secretVal = (formFields.access_token_encrypted || formFields.refresh_token_encrypted || '').trim();
+    const payload = {
+      account_identifier: (formFields.account_identifier || '').trim(),
+      phone_number_id: formFields.phone_number_id,
+      waba_id: formFields.waba_id,
+      access_token_encrypted: secretVal,
+      refresh_token_encrypted: secretVal,
+      is_connected: 1,
+      is_simulated: 0
+    };
+
+    try {
+      const res = await fetch(apiUrl(`/api/integrations/${targetId}`), {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      if (res.ok) {
+        alert('Credentials saved successfully! Real email sending is now active.');
+        setEditingProvider(null);
+        await fetchIntegrations();
+      } else {
+        const err = await res.json().catch(() => ({}));
+        alert('Failed to save credentials: ' + (err.detail || 'Server error'));
       }
+    } catch (err) {
+      console.error(err);
+      alert('Error saving credentials: ' + err.message);
+    } finally {
+      setSaveLoading(false);
     }
-    setSaveLoading(false);
-    setEditingProvider(null);
-    fetchIntegrations();
   };
 
   const wa = integrations.find(i => i.provider === 'whatsapp');
@@ -825,23 +844,33 @@ export const IntegrationsHub = () => {
               ) : (
                 <>
                   <div style={{ marginBottom: '14px' }}>
-                    <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: '#94a3b8', marginBottom: '6px' }}>Sending Email Address</label>
+                    <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: '#94a3b8', marginBottom: '6px' }}>Sending Gmail Address</label>
                     <input
                       className="input-field"
+                      required
                       value={formFields.account_identifier}
                       onChange={(e) => setFormFields({ ...formFields, account_identifier: e.target.value })}
                       placeholder="yourname@gmail.com"
                     />
                   </div>
                   <div style={{ marginBottom: '20px' }}>
-                    <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: '#94a3b8', marginBottom: '6px' }}>OAuth Client ID / App Password</label>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+                      <label style={{ fontSize: '12px', fontWeight: 600, color: '#94a3b8' }}>
+                        Google 16-Char App Password (or OAuth Token)
+                      </label>
+                      <span style={{ fontSize: '11px', color: '#10b981' }}>16 characters</span>
+                    </div>
                     <input
                       type="password"
                       className="input-field"
+                      required
                       value={formFields.access_token_encrypted}
                       onChange={(e) => setFormFields({ ...formFields, access_token_encrypted: e.target.value })}
-                      placeholder="Enter Google App Password or Token"
+                      placeholder="e.g. abcd efgh ijkl mnop"
                     />
+                    <div style={{ fontSize: '11px', color: '#64748b', marginTop: '6px' }}>
+                      Generated from Google Account &gt; Security &gt; App Passwords. Spaces are automatically handled.
+                    </div>
                   </div>
                 </>
               )}
