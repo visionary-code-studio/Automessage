@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { apiUrl } from '../api';
 import { Icon } from './Icons';
 
-export const CampaignWizard = ({ setView, openCampaignMonitor }) => {
+export const CampaignWizard = ({ setView, openCampaignMonitor, preloadedTemplate, clearPreloadedTemplate }) => {
   const [step, setStep] = useState(1);
   const [channel, setChannel] = useState('whatsapp'); // 'gmail' or 'whatsapp'
   const [campaignName, setCampaignName] = useState('');
@@ -15,6 +15,27 @@ export const CampaignWizard = ({ setView, openCampaignMonitor }) => {
   const [templateBody, setTemplateBody] = useState(
     "👋 *Hi {{Full Name}}!*\n\nYour pass for *{{Event Name}}* on *{{Event Date}}* is confirmed.\n📍 Venue: {{Venue}}\n🎟 Pass: #{{Ticket ID}}\n\nPlease present this at check-in.\n\nBest,\n*AutoMessage Ops*"
   );
+
+  // Apply preloaded template if opened from Templates tab
+  useEffect(() => {
+    if (preloadedTemplate) {
+      if (preloadedTemplate.channel) {
+        setChannel(preloadedTemplate.channel);
+      }
+      if (preloadedTemplate.name) {
+        setCampaignName(preloadedTemplate.name + ' Dispatch');
+      }
+      if (preloadedTemplate.subject) {
+        setSubject(preloadedTemplate.subject);
+      }
+      if (preloadedTemplate.body) {
+        setTemplateBody(preloadedTemplate.body);
+      }
+      if (clearPreloadedTemplate) {
+        clearPreloadedTemplate();
+      }
+    }
+  }, [preloadedTemplate]);
 
   // AI Assistant state
   const [showAiDrawer, setShowAiDrawer] = useState(false);
@@ -46,14 +67,16 @@ export const CampaignWizard = ({ setView, openCampaignMonitor }) => {
 
   useEffect(() => {
     fetch(apiUrl('/api/templates'))
-      .then(res => res.json())
-      .then(data => setSavedTemplates(data))
+      .then(res => res.ok ? res.json() : [])
+      .then(data => {
+        if (data && Array.isArray(data)) setSavedTemplates(data);
+      })
       .catch(console.error);
 
     fetch(apiUrl('/api/whatsapp-bridge/status'))
-      .then(res => res.json())
+      .then(res => res.ok ? res.json() : null)
       .then(data => {
-        if (data.status === 'CONNECTED' && data.user) {
+        if (data && data.status === 'CONNECTED' && data.user) {
           setSenderIdentity('+' + data.user.id);
         }
       })
@@ -290,9 +313,9 @@ export const CampaignWizard = ({ setView, openCampaignMonitor }) => {
 
   return (
     <div className="page-container">
-      {/* Stepper Bar */}
-      <div className="glass-panel wizard-stepper" style={{ padding: '16px 20px', marginBottom: '24px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '8px' }}>
+      {/* Stepper Bar matching Image 2 */}
+      <div className="glass-panel" style={{ padding: '18px 28px', marginBottom: '28px', borderRadius: '16px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px', overflowX: 'auto' }}>
           {[
             { num: 1, label: 'Channel' },
             { num: 2, label: 'Message' },
@@ -301,137 +324,342 @@ export const CampaignWizard = ({ setView, openCampaignMonitor }) => {
             { num: 5, label: 'Validation' },
             { num: 6, label: 'Preview' },
             { num: 7, label: 'Launch' },
-          ].map((s) => (
-            <div key={s.num} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <div style={{
-                width: '28px',
-                height: '28px',
-                borderRadius: '50%',
-                background: step === s.num 
-                  ? 'var(--primary)' 
-                  : step > s.num 
-                    ? '#10b981' 
-                    : 'rgba(255,255,255,0.08)',
-                color: '#fff',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontSize: '12px',
-                fontWeight: 700,
-                boxShadow: step === s.num ? '0 0 12px var(--primary-glow)' : 'none'
-              }}>
-                {step > s.num ? <Icon name="check" size={14} /> : s.num}
+          ].map((s, idx, arr) => (
+            <React.Fragment key={s.num}>
+              <div 
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  cursor: s.num <= step ? 'pointer' : 'default',
+                  flexShrink: 0
+                }}
+                onClick={() => { if (s.num < step) setStep(s.num); }}
+              >
+                <div style={{
+                  width: '28px',
+                  height: '28px',
+                  borderRadius: '50%',
+                  background: step === s.num 
+                    ? '#3b82f6' 
+                    : step > s.num 
+                      ? '#10b981' 
+                      : 'rgba(255, 255, 255, 0.08)',
+                  color: '#ffffff',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: '12px',
+                  fontWeight: 700,
+                  boxShadow: step === s.num ? '0 0 14px rgba(59, 130, 246, 0.5)' : 'none'
+                }}>
+                  {step > s.num ? <Icon name="check" size={14} /> : s.num}
+                </div>
+                <span style={{
+                  fontSize: '13px',
+                  fontWeight: step === s.num ? 700 : 500,
+                  color: step === s.num ? '#ffffff' : '#94a3b8'
+                }}>
+                  {s.label}
+                </span>
               </div>
-              <span style={{
-                fontSize: '13px',
-                fontWeight: step === s.num ? 700 : 500,
-                color: step === s.num ? '#fff' : 'var(--text-muted)'
-              }}>
-                {s.label}
-              </span>
-              {s.num < 7 && <Icon name="chevron-right" size={14} color="rgba(255,255,255,0.2)" />}
-            </div>
+
+              {idx < arr.length - 1 && (
+                <div style={{
+                  flex: 1,
+                  height: '1px',
+                  minWidth: '24px',
+                  borderTop: '1px dashed rgba(255, 255, 255, 0.18)',
+                  margin: '0 4px'
+                }} />
+              )}
+            </React.Fragment>
           ))}
         </div>
       </div>
 
-      {/* STEP 1: CHANNEL SELECTION */}
+      {/* STEP 1: CHANNEL SELECTION MATCHING IMAGE 2 */}
       {step === 1 && (
-        <div className="glass-panel" style={{ padding: '36px' }}>
-          <h2 style={{ fontSize: '22px', color: '#fff', marginBottom: '8px' }}>Step 1 — Choose Sending Channel</h2>
-          <p style={{ color: 'var(--text-secondary)', fontSize: '14px', marginBottom: '28px' }}>
-            AutoMessage uses dedicated delivery adapters for each provider. Choose your channel:
-          </p>
+        <div className="glass-panel" style={{ padding: '36px 40px', borderRadius: '20px' }}>
+          {/* Header */}
+          <div style={{ marginBottom: '28px' }}>
+            <div style={{
+              color: '#3b82f6',
+              fontSize: '11px',
+              fontWeight: 700,
+              letterSpacing: '0.08em',
+              textTransform: 'uppercase',
+              marginBottom: '8px'
+            }}>
+              CAMPAIGN SETUP
+            </div>
+            <h1 style={{ fontSize: '26px', fontWeight: 800, color: '#ffffff', marginBottom: '8px', letterSpacing: '-0.02em' }}>
+              Step 1 — Choose Sending Channel
+            </h1>
+            <p style={{ color: '#94a3b8', fontSize: '14px' }}>
+              AutoMessage uses dedicated delivery adapters for each provider. Choose your channel to continue.
+            </p>
+          </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '20px', marginBottom: '32px' }}>
+          {/* Channel Cards Grid */}
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
+            gap: '24px',
+            marginBottom: '32px'
+          }}>
             {/* WhatsApp Card */}
             <div
               onClick={() => handleChannelChange('whatsapp')}
               style={{
-                padding: '24px',
+                position: 'relative',
+                overflow: 'hidden',
+                padding: '28px',
                 borderRadius: '16px',
                 cursor: 'pointer',
-                border: channel === 'whatsapp' ? '2px solid #10b981' : '1px solid var(--border-subtle)',
-                background: channel === 'whatsapp' ? 'rgba(16, 185, 129, 0.08)' : 'rgba(255,255,255,0.02)',
-                boxShadow: channel === 'whatsapp' ? '0 0 24px rgba(16, 185, 129, 0.2)' : 'none',
-                transition: 'all 0.2s ease'
+                border: channel === 'whatsapp' ? '1.5px solid #10b981' : '1px solid rgba(255, 255, 255, 0.08)',
+                background: channel === 'whatsapp'
+                  ? 'linear-gradient(135deg, rgba(16, 185, 129, 0.08) 0%, rgba(13, 17, 28, 0.95) 100%)'
+                  : 'rgba(13, 17, 28, 0.6)',
+                boxShadow: channel === 'whatsapp' ? '0 0 24px rgba(16, 185, 129, 0.22)' : 'none',
+                transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)'
               }}
             >
-              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}>
-                <div style={{ padding: '10px', borderRadius: '12px', background: 'rgba(16, 185, 129, 0.2)', color: '#10b981' }}>
-                  <Icon name="whatsapp" size={24} color="#10b981" />
+              {/* WhatsApp Watermark in Background */}
+              <div style={{
+                position: 'absolute',
+                right: '16px',
+                bottom: '16px',
+                opacity: 0.12,
+                pointerEvents: 'none',
+                color: '#10b981'
+              }}>
+                <Icon name="whatsapp" size={88} color="#10b981" />
+              </div>
+
+              {/* Card Top Row */}
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '20px', zIndex: 1, position: 'relative' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+                  <div style={{
+                    width: '46px',
+                    height: '46px',
+                    borderRadius: '12px',
+                    background: 'rgba(16, 185, 129, 0.18)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: '#10b981'
+                  }}>
+                    <Icon name="whatsapp" size={24} color="#10b981" />
+                  </div>
+                  <div>
+                    <h3 style={{ fontSize: '17px', fontWeight: 700, color: '#ffffff' }}>WhatsApp Business</h3>
+                    <span style={{ fontSize: '12.5px', color: '#10b981', fontWeight: 600 }}>Official Cloud API</span>
+                  </div>
                 </div>
-                <div>
-                  <h3 style={{ fontSize: '18px', color: '#fff' }}>WhatsApp Business</h3>
-                  <span style={{ fontSize: '12px', color: '#34d399' }}>Official Cloud API</span>
+
+                {channel === 'whatsapp' && (
+                  <div style={{
+                    background: '#059669',
+                    color: '#ffffff',
+                    fontSize: '11px',
+                    fontWeight: 700,
+                    padding: '4px 12px',
+                    borderRadius: '9999px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '4px'
+                  }}>
+                    <Icon name="check" size={12} color="#ffffff" />
+                    <span>Selected</span>
+                  </div>
+                )}
+              </div>
+
+              {/* Features List */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', position: 'relative', zIndex: 1 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '13px', color: '#94a3b8' }}>
+                  <div style={{ width: '16px', height: '16px', borderRadius: '50%', background: 'rgba(16, 185, 129, 0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <Icon name="check" size={10} color="#10b981" />
+                  </div>
+                  <span>High open rates & reliable post delivery</span>
+                </div>
+
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '13px', color: '#94a3b8' }}>
+                  <div style={{ width: '16px', height: '16px', borderRadius: '50%', background: 'rgba(16, 185, 129, 0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <Icon name="check" size={10} color="#10b981" />
+                  </div>
+                  <span>Real-time sent, delivered & read webhook receipts</span>
+                </div>
+
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '13px', color: '#94a3b8' }}>
+                  <div style={{ width: '16px', height: '16px', borderRadius: '50%', background: 'rgba(16, 185, 129, 0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <Icon name="check" size={10} color="#10b981" />
+                  </div>
+                  <span>E.164 phone number normalization</span>
                 </div>
               </div>
-              <ul style={{ fontSize: '12px', color: 'var(--text-secondary)', lineHeight: 1.8, paddingLeft: '18px' }}>
-                <li>High open rates & mobile push delivery</li>
-                <li>Real-time sent, delivered & read webhook receipts</li>
-                <li>E.164 phone number auto-normalization</li>
-              </ul>
             </div>
 
             {/* Gmail Card */}
             <div
               onClick={() => handleChannelChange('gmail')}
               style={{
-                padding: '24px',
+                position: 'relative',
+                overflow: 'hidden',
+                padding: '28px',
                 borderRadius: '16px',
                 cursor: 'pointer',
-                border: channel === 'gmail' ? '2px solid #6366f1' : '1px solid var(--border-subtle)',
-                background: channel === 'gmail' ? 'rgba(99, 102, 241, 0.08)' : 'rgba(255,255,255,0.02)',
-                boxShadow: channel === 'gmail' ? '0 0 24px rgba(99, 102, 241, 0.2)' : 'none',
-                transition: 'all 0.2s ease'
+                border: channel === 'gmail' ? '1.5px solid #ef4444' : '1px solid rgba(239, 68, 68, 0.25)',
+                background: channel === 'gmail'
+                  ? 'linear-gradient(135deg, rgba(239, 68, 68, 0.08) 0%, rgba(13, 17, 28, 0.95) 100%)'
+                  : 'linear-gradient(135deg, rgba(239, 68, 68, 0.03) 0%, rgba(13, 17, 28, 0.6) 100%)',
+                boxShadow: channel === 'gmail' ? '0 0 24px rgba(239, 68, 68, 0.22)' : 'none',
+                transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)'
               }}
             >
-              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}>
-                <div style={{ padding: '10px', borderRadius: '12px', background: 'rgba(99, 102, 241, 0.2)', color: '#818cf8' }}>
-                  <Icon name="mail" size={24} color="#818cf8" />
+              {/* Gmail Watermark in Background */}
+              <div style={{
+                position: 'absolute',
+                right: '16px',
+                bottom: '16px',
+                opacity: 0.12,
+                pointerEvents: 'none',
+                color: '#ef4444'
+              }}>
+                <Icon name="mail" size={88} color="#ef4444" />
+              </div>
+
+              {/* Card Top Row */}
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '20px', zIndex: 1, position: 'relative' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+                  <div style={{
+                    width: '46px',
+                    height: '46px',
+                    borderRadius: '12px',
+                    background: 'rgba(239, 68, 68, 0.18)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: '#ef4444'
+                  }}>
+                    <Icon name="mail" size={24} color="#ef4444" />
+                  </div>
+                  <div>
+                    <h3 style={{ fontSize: '17px', fontWeight: 700, color: '#ffffff' }}>Gmail Outreach</h3>
+                    <span style={{ fontSize: '12.5px', color: '#f87171', fontWeight: 600 }}>Authorized OAuth 2.0 API</span>
+                  </div>
                 </div>
-                <div>
-                  <h3 style={{ fontSize: '18px', color: '#fff' }}>Gmail Outreach</h3>
-                  <span style={{ fontSize: '12px', color: '#a5b4fc' }}>Authorized OAuth 2.0 API</span>
+
+                {channel === 'gmail' && (
+                  <div style={{
+                    background: '#dc2626',
+                    color: '#ffffff',
+                    fontSize: '11px',
+                    fontWeight: 700,
+                    padding: '4px 12px',
+                    borderRadius: '9999px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '4px'
+                  }}>
+                    <Icon name="check" size={12} color="#ffffff" />
+                    <span>Selected</span>
+                  </div>
+                )}
+              </div>
+
+              {/* Features List */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', position: 'relative', zIndex: 1 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '13px', color: '#94a3b8' }}>
+                  <div style={{ width: '16px', height: '16px', borderRadius: '50%', background: 'rgba(239, 68, 68, 0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <Icon name="check" size={10} color="#ef4444" />
+                  </div>
+                  <span>Rich HTML formatting & styled email templates</span>
+                </div>
+
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '13px', color: '#94a3b8' }}>
+                  <div style={{ width: '16px', height: '16px', borderRadius: '50%', background: 'rgba(239, 68, 68, 0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <Icon name="check" size={10} color="#ef4444" />
+                  </div>
+                  <span>MIME Base64URL encoding via messages.send</span>
+                </div>
+
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '13px', color: '#94a3b8' }}>
+                  <div style={{ width: '16px', height: '16px', borderRadius: '50%', background: 'rgba(239, 68, 68, 0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <Icon name="check" size={10} color="#ef4444" />
+                  </div>
+                  <span>Automatic email syntax checks</span>
                 </div>
               </div>
-              <ul style={{ fontSize: '12px', color: 'var(--text-secondary)', lineHeight: 1.8, paddingLeft: '18px' }}>
-                <li>Rich HTML formatting & styled email templates</li>
-                <li>MIME Base64URL encoding via messages.send</li>
-                <li>Automatic email syntax checks</li>
-              </ul>
             </div>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '32px' }}>
+          {/* Campaign Form Inputs */}
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+            gap: '24px',
+            marginBottom: '36px'
+          }}>
             <div>
-              <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: 'var(--text-secondary)', marginBottom: '8px' }}>
-                Campaign Name
+              <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#e2e8f0', marginBottom: '8px' }}>
+                Campaign Name <span style={{ color: '#ef4444' }}>*</span>
               </label>
-              <input
-                className="input-field"
-                value={campaignName}
-                onChange={(e) => setCampaignName(e.target.value)}
-                placeholder="e.g. Q4 Executive Summit Invite"
-              />
+              <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+                <div style={{ position: 'absolute', left: '14px', color: '#64748b', pointerEvents: 'none', display: 'flex', alignItems: 'center' }}>
+                  <Icon name="file-text" size={16} />
+                </div>
+                <input
+                  className="input-field"
+                  style={{ paddingLeft: '40px' }}
+                  value={campaignName}
+                  onChange={(e) => setCampaignName(e.target.value)}
+                  placeholder="e.g. Q4 Executive Summit Invite"
+                />
+              </div>
             </div>
 
             <div>
-              <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: 'var(--text-secondary)', marginBottom: '8px' }}>
-                Sender Identity
+              <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#e2e8f0', marginBottom: '8px' }}>
+                Sender Identity <span style={{ color: '#ef4444' }}>*</span>
               </label>
-              <input
-                className="input-field"
-                value={senderIdentity}
-                onChange={(e) => setSenderIdentity(e.target.value)}
-                placeholder={channel === 'whatsapp' ? '+1 (555) 019-2834' : 'outreach@yourcompany.com'}
-              />
+              <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+                <div style={{ position: 'absolute', left: '14px', color: '#64748b', pointerEvents: 'none', display: 'flex', alignItems: 'center' }}>
+                  <Icon name="user" size={16} />
+                </div>
+                <input
+                  className="input-field"
+                  style={{ paddingLeft: '40px' }}
+                  value={senderIdentity}
+                  onChange={(e) => setSenderIdentity(e.target.value)}
+                  placeholder="e.g. +1 555 012 3456 or yourname@gmail.com"
+                />
+              </div>
             </div>
           </div>
 
+          {/* Action Row */}
           <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-            <button className="btn btn-primary" onClick={() => setStep(2)}>
-              Next: Compose Message <Icon name="arrow-right" size={16} />
+            <button
+              className="btn btn-primary"
+              onClick={() => {
+                if (!campaignName.trim()) {
+                  setCampaignName(channel === 'whatsapp' ? 'WhatsApp Broadcast' : 'Gmail Outreach');
+                }
+                setStep(2);
+              }}
+              style={{
+                padding: '12px 28px',
+                fontSize: '14px',
+                borderRadius: '10px',
+                fontWeight: 700,
+                background: 'linear-gradient(135deg, #4f46e5 0%, #3b82f6 100%)',
+                boxShadow: '0 4px 18px rgba(59, 130, 246, 0.35)'
+              }}
+            >
+              <span>Next: Compose Message</span>
+              <Icon name="arrow-right" size={16} />
             </button>
           </div>
         </div>

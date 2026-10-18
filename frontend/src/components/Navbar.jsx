@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Icon } from './Icons';
 
-export const Navbar = ({ currentView, setView, activeCampaignId }) => {
+export const Navbar = ({ currentView, setView }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const handleNavClick = (view) => {
@@ -15,137 +15,139 @@ export const Navbar = ({ currentView, setView, activeCampaignId }) => {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
-        padding: '12px 20px',
-        borderBottom: '1px solid var(--border-subtle)',
-        background: 'rgba(9, 10, 16, 0.92)',
-        backdropFilter: 'blur(16px)',
-        WebkitBackdropFilter: 'blur(16px)',
+        padding: '14px 28px',
+        borderBottom: '1px solid rgba(255, 255, 255, 0.07)',
+        background: 'rgba(7, 9, 14, 0.88)',
+        backdropFilter: 'blur(20px)',
+        WebkitBackdropFilter: 'blur(20px)',
         position: 'sticky',
         top: 0,
         zIndex: 50
       }}>
         {/* Brand */}
         <div 
-          style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }}
+          style={{ display: 'flex', alignItems: 'center', gap: '12px', cursor: 'pointer' }}
           onClick={() => handleNavClick('dashboard')}
         >
           <div style={{
-            width: '34px',
-            height: '34px',
-            borderRadius: '9px',
-            background: 'linear-gradient(135deg, #6366f1 0%, #10b981 100%)',
+            width: '38px',
+            height: '38px',
+            borderRadius: '10px',
+            background: 'linear-gradient(135deg, #00d2ff 0%, #00f2fe 50%, #10b981 100%)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            boxShadow: '0 4px 12px rgba(99, 102, 241, 0.4)'
+            boxShadow: '0 4px 16px rgba(0, 242, 254, 0.35)'
           }}>
-            <Icon name="send" size={18} color="#fff" />
+            <Icon name="automessage-logo" size={38} />
           </div>
           <div>
-            <span className="brand-font" style={{ fontSize: '18px', color: '#fff', fontWeight: 800 }}>
-              Auto<span style={{ color: '#6366f1' }}>Message</span>
-            </span>
-            <div style={{ fontSize: '9px', color: 'var(--text-muted)', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
-              Bulk Messaging Engine
+            <div className="brand-font" style={{ fontSize: '19px', color: '#ffffff', fontWeight: 800, letterSpacing: '-0.02em', lineHeight: 1.1 }}>
+              AutoMessage
+            </div>
+            <div style={{ fontSize: '8.5px', color: '#64748b', letterSpacing: '0.12em', textTransform: 'uppercase', fontWeight: 700, marginTop: '3px' }}>
+              BULK MESSAGING ENGINE
             </div>
           </div>
         </div>
 
-        {/* Desktop Nav Links */}
-        <div className="desktop-nav-links" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+        {/* Center Nav Pill Links (Desktop) */}
+        <div className="desktop-nav-links nav-pill-container">
           <button
-            className={`btn ${currentView === 'dashboard' ? 'btn-primary' : 'btn-secondary'} btn-sm`}
+            className={`nav-pill-btn ${currentView === 'dashboard' ? 'active' : ''}`}
             onClick={() => handleNavClick('dashboard')}
           >
-            <Icon name="activity" size={14} />
+            <Icon name="activity" size={15} color={currentView === 'dashboard' ? '#fff' : '#94a3b8'} />
             Dashboard
           </button>
 
           <button
-            className={`btn ${currentView === 'wizard' ? 'btn-primary' : 'btn-secondary'} btn-sm`}
+            className={`nav-pill-btn ${currentView === 'wizard' ? 'active' : ''}`}
             onClick={() => handleNavClick('wizard')}
           >
-            <Icon name="plus" size={14} />
+            <Icon name="plus" size={15} color={currentView === 'wizard' ? '#fff' : '#94a3b8'} />
             New Campaign
           </button>
 
-          {activeCampaignId && (
-            <button
-              className={`btn ${currentView === 'monitor' ? 'btn-whatsapp' : 'btn-secondary'} btn-sm`}
-              onClick={() => handleNavClick('monitor')}
-              style={{ position: 'relative' }}
-            >
-              <span style={{
-                display: 'inline-block',
-                width: '8px',
-                height: '8px',
-                borderRadius: '50%',
-                background: '#10b981',
-                animation: 'pulse-ring 1.5s infinite',
-                marginRight: '2px'
-              }} />
-              Live Cockpit
-            </button>
-          )}
-
           <button
-            className={`btn ${currentView === 'templates' ? 'btn-primary' : 'btn-secondary'} btn-sm`}
+            className={`nav-pill-btn ${currentView === 'templates' ? 'active' : ''}`}
             onClick={() => handleNavClick('templates')}
           >
-            <Icon name="layers" size={14} />
+            <Icon name="layers" size={15} color={currentView === 'templates' ? '#fff' : '#94a3b8'} />
             Templates
           </button>
 
           <button
-            className={`btn ${currentView === 'integrations' ? 'btn-primary' : 'btn-secondary'} btn-sm`}
+            className={`nav-pill-btn ${currentView === 'integrations' ? 'active' : ''}`}
             onClick={() => handleNavClick('integrations')}
           >
-            <Icon name="settings" size={14} />
+            <Icon name="settings" size={15} color={currentView === 'integrations' ? '#fff' : '#94a3b8'} />
             Channels
           </button>
         </div>
 
-        {/* Provider Status Badges (Desktop) */}
+        {/* Right Status Badges (Desktop) */}
         <div className="desktop-badges" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '6px',
-            padding: '4px 10px',
-            background: 'rgba(16, 185, 129, 0.1)',
-            border: '1px solid rgba(16, 185, 129, 0.25)',
-            borderRadius: '9999px',
-            fontSize: '11px',
-            color: '#6ee7b7'
-          }}>
-            <Icon name="whatsapp" size={12} color="#10b981" />
+          {/* WhatsApp Ready */}
+          <div 
+            onClick={() => handleNavClick('integrations')}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              padding: '6px 14px',
+              background: 'rgba(16, 185, 129, 0.08)',
+              border: '1px solid rgba(16, 185, 129, 0.35)',
+              borderRadius: '9999px',
+              fontSize: '12px',
+              fontWeight: 600,
+              color: '#34d399',
+              cursor: 'pointer',
+              transition: 'all 0.2s ease'
+            }}
+          >
+            <Icon name="whatsapp" size={14} color="#10b981" />
             <span>WhatsApp Ready</span>
-            <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#10b981' }} />
+            <span 
+              className="pulse-dot-green"
+              style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#10b981' }} 
+            />
           </div>
 
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '6px',
-            padding: '4px 10px',
-            background: 'rgba(239, 68, 68, 0.1)',
-            border: '1px solid rgba(239, 68, 68, 0.25)',
-            borderRadius: '9999px',
-            fontSize: '11px',
-            color: '#fca5a5'
-          }}>
-            <Icon name="mail" size={12} color="#ef4444" />
+          {/* Gmail */}
+          <div 
+            onClick={() => handleNavClick('integrations')}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              padding: '6px 14px',
+              background: 'rgba(239, 68, 68, 0.08)',
+              border: '1px solid rgba(239, 68, 68, 0.35)',
+              borderRadius: '9999px',
+              fontSize: '12px',
+              fontWeight: 600,
+              color: '#f87171',
+              cursor: 'pointer',
+              transition: 'all 0.2s ease'
+            }}
+          >
+            <Icon name="mail" size={14} color="#ef4444" />
             <span>Gmail</span>
+            <span 
+              className="pulse-dot-red"
+              style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#ef4444' }} 
+            />
           </div>
         </div>
 
-        {/* Mobile Hamburger Toggle Button */}
+        {/* Mobile Hamburger Toggle */}
         <button
           className="mobile-nav-toggle"
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
           aria-label="Toggle navigation menu"
         >
-          <Icon name={mobileMenuOpen ? "x-circle" : "layers"} size={20} />
+          <Icon name={mobileMenuOpen ? "x-circle" : "layers"} size={22} />
         </button>
       </nav>
 
@@ -168,22 +170,12 @@ export const Navbar = ({ currentView, setView, activeCampaignId }) => {
             New Campaign
           </button>
 
-          {activeCampaignId && (
-            <button
-              className={`btn ${currentView === 'monitor' ? 'btn-whatsapp' : 'btn-secondary'}`}
-              onClick={() => handleNavClick('monitor')}
-            >
-              <Icon name="zap" size={16} />
-              Live Cockpit
-            </button>
-          )}
-
           <button
             className={`btn ${currentView === 'templates' ? 'btn-primary' : 'btn-secondary'}`}
             onClick={() => handleNavClick('templates')}
           >
             <Icon name="layers" size={16} />
-            Message Templates
+            Templates
           </button>
 
           <button
@@ -191,7 +183,7 @@ export const Navbar = ({ currentView, setView, activeCampaignId }) => {
             onClick={() => handleNavClick('integrations')}
           >
             <Icon name="settings" size={16} />
-            WhatsApp & Channels
+            Channels
           </button>
         </div>
       )}
